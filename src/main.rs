@@ -1,19 +1,6 @@
 use bevy::prelude::*;
 
-// // entity
-// struct Entity(f64)
-
-// // component
-// #[derive(Component)]
-// struct Position { x: f32, y: f32 }
-
-// // system
-// fn print_position_system(query: Query<&Transform>) {
-//     for transform in query.iter() {
-//         println!("Position: {:?}", transform.translation);
-//     }
-// }
-// ENTITY COMPONENT SYSTEM = ECS
+pub struct HelloPlugin;
 
 #[derive(Component)]
 struct Person;
@@ -36,16 +23,27 @@ fn add_people(mut commands: Commands) {
         .insert(Name("Michael Grooves".to_string()));
 }
 
-fn greet_people(query: Query<&Name, With<Person>>) {
-    for name in query.iter() {
-        println!("hello {}", name.0);
+struct GreetTimer(Timer);
+
+fn greet_people(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&Name, With<Person>>) {
+    if timer.0.tick(time.delta()).just_finished() {
+        for name in query.iter() {
+            println!("hello {}", name.0);
+        }
+    }
+}
+
+impl Plugin for HelloPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(GreetTimer(Timer::from_seconds(2.0, true)))
+            .add_startup_system(add_people)
+            .add_system(greet_people);
     }
 }
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_startup_system(add_people)
-        .add_system(greet_people)
+        .add_plugin(HelloPlugin)
         .run();
 }
