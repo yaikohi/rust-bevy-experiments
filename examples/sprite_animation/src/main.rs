@@ -1,5 +1,3 @@
-
-
 use bevy::prelude::*;
 
 fn main() {
@@ -48,4 +46,3 @@ fn setup(
         })
         .insert(AnimationTimer(Timer::from_seconds(0.1, true)));
 }
-
